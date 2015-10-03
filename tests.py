@@ -1,15 +1,19 @@
 import unittest
-from odoa import get_random_surah
+from odoa import ODOA
 
 
 class ODOATest(unittest.TestCase):
 
-    def test_get_surah(self):
-        surah = get_random_surah()
+    def setUp(self):
+        self.odoa = ODOA()
 
-        self.assertTrue(surah)
-        self.assertEquals(type({}), type(surah))
+    def test_get_surah(self):
+        surah = self.odoa.get_random_surah()
+
+        if surah:
+            self.assertEquals(type({}), type(surah))
+            self.assertTrue(surah)
 
     def test_not_supported_language(self):
         with self.assertRaises(ValueError):
-            get_random_surah('fr')
+            self.odoa.get_random_surah('fr')
