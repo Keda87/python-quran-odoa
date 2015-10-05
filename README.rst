@@ -19,11 +19,17 @@ Installation:
 - Clone repo : https://github.com/Keda87/python-quran-odoa.git
 - Run : ``python setup.py install``
 
+**PIP:**
+
+- pip install python-quran-odoa
+
 **Usage:**
 
-    from odoa import get_random_surah
+    from odoa import ODOA
+   
+    odoa = ODOA()
   
-    surah = get_random_surah()
+    surah = odoa.get_random_surah()
   
     surah.get('ayat')
   
