@@ -1,3 +1,26 @@
+"""
+The MIT License (MIT)
+
+Copyright (c) 2015 Adiyat Mubarak
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+"""
 import sys
 import json
 import random
@@ -7,7 +30,7 @@ import traceback
 
 class ODOA(object):
 
-    TOTAL_PAGES = 159
+    TOTAL_SURAH = 114  # Total surah within quran : https://en.wikipedia.org/wiki/List_of_surahs_in_the_Quran
     BASE_API = 'https://raw.githubusercontent.com/semarketir/quranjson/master/source'
     SUPPORTED_LANGUAGES = ['id', 'en']
 
@@ -19,7 +42,7 @@ class ODOA(object):
             :lang       --  String contains language code.
 
         Return:
-            :dict       --  Paired ayat with the translation.
+            :dict       --  Paired ayat, sound and the translation.
         """
 
         # Ensure the language supported.
@@ -27,10 +50,9 @@ class ODOA(object):
             raise ValueError('Currently your selected language not yet supported.')
 
         # Get random surah and construct the url.
-        random_pages = random.randint(1, self.TOTAL_PAGES)
+        rand_surah = random.randint(1, self.TOTAL_SURAH)
         surah_url = '{base}/surah/surah_{pages}.json'.format(base=self.BASE_API,
-                                                             pages=random_pages)
-
+                                                             pages=rand_surah)
         try:
             response = urllib2.urlopen(surah_url)  # Fetch data from given url.
             data = json.loads(response.read())     # Get response and convert to dict.
@@ -41,15 +63,26 @@ class ODOA(object):
             # Get random ayat.
             random_ayah = random.randint(1, int(data.get('count')))
             ayah_key = 'verse_{index}'.format(index=random_ayah)
-            ayah = data['verse'][ayah_key]
+            ayah = data['verse'][ayah_key].encode('utf-8')
+            surah_index = data.get('index')
 
-            translation = self.__get_translation(surah=data.get('index'), ayat=ayah_key, lang=lang)
+            # Get translation and sound url.
+            translation = self.__get_translation(surah=surah_index, ayah=ayah_key, lang=lang)
+            sound = self.__get_sound(surah=surah_index, ayah=random_ayah)
 
-            return {'ayat': ayah, 'translate': translation}
+            # Wrap response to dictionary.
+            response = {
+                'ayat': ayah,
+                'translate': translation,
+                'sound': sound
+            }
 
-    def __get_translation(self, surah, ayat, lang):
+            return response
+
+    def __get_translation(self, surah, ayah, lang):
         """
-        Perform http request to from given surah.
+        Perform http request to get translation from given surah, ayah and
+        language.
 
         Parameter:
             :surah      --  Surah index from API pages.
@@ -61,14 +94,35 @@ class ODOA(object):
         """
 
         # Construct url to fetch translation data.
-        translation_url = '{base}/translations/{lang}/{lang}_translation_{surah}.json'\
-                          .format(base=self.BASE_API, lang=lang, surah=int(surah))
+        translation_url = '{base}/translations/{lang}/{lang}_translation_{surah}.json' \
+            .format(base=self.BASE_API, lang=lang, surah=int(surah))
 
         try:
             response = urllib2.urlopen(translation_url)  # Fetch data from give url.
             data = json.loads(response.read())           # Get response and convert to dict.
-            translation = data['verse'][ayat]
-        except IOError:
+            translation = data['verse'][ayah]
+        except Exception:
             return None
         else:
             return translation
+
+    def __get_sound(self, surah, ayah):
+        """
+        Perform http request to get sound from given surah and ayah.
+
+        Parameter:
+            :surah      --  Surah index from API pages.
+            :ayat       --  Ayat key.
+
+        Return:
+            :string     --  URL for mp3 sound.
+        """
+
+        # Formatting ayah with 0 leading.
+        # http://stackoverflow.com/questions/17118071/python-add-leading-zeroes-using-str-format
+        format_ayah = '{0:0>3}'.format(ayah)
+
+        sound_url = '{base}/sounds/{surah}/{ayah}.mp3'.format(base=self.BASE_API,
+                                                              surah=surah,
+                                                              ayah=format_ayah)
+        return sound_url
