@@ -9,7 +9,7 @@ class ODOA(object):
 
     TOTAL_PAGES = 159
     BASE_API = 'https://raw.githubusercontent.com/semarketir/quranjson/master/source'
-    SUPPORTED_LANGUAGES = ['id']
+    SUPPORTED_LANGUAGES = ['id', 'en']
 
     def get_random_surah(self, lang='id'):
         """
