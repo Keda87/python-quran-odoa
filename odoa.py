@@ -39,13 +39,13 @@ class ODOA(object):
             return {}
         else:
             # Get random ayat.
-            random_ayat = random.randint(1, int(data.get('count')))
-            ayat_key = 'verse_{index}'.format(index=random_ayat)
-            ayat = data['verse'][ayat_key]
+            random_ayah = random.randint(1, int(data.get('count')))
+            ayah_key = 'verse_{index}'.format(index=random_ayah)
+            ayah = data['verse'][ayah_key]
 
-            translation = self.__get_translation(surah=data.get('index'), ayat=ayat_key, lang=lang)
+            translation = self.__get_translation(surah=data.get('index'), ayat=ayah_key, lang=lang)
 
-            return {'ayat': ayat, 'translate': translation}
+            return {'ayat': ayah, 'translate': translation}
 
     def __get_translation(self, surah, ayat, lang):
         """
