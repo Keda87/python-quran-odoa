@@ -42,7 +42,7 @@ class ODOA(object):
             :lang       --  String contains language code.
 
         Return:
-            :dict       --  Paired ayat, sound and the translation.
+            :dict       --  Paired ayat, sound, description and the translation.
         """
 
         # Ensure the language supported.

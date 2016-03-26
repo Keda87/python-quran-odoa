@@ -40,3 +40,4 @@ Installation:
     surah.get('ayat')
     surah.get('translate')
     surah.get('sound')
+    surah.get('description')
