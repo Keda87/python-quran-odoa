@@ -31,7 +31,7 @@ import traceback
 class ODOA(object):
 
     TOTAL_SURAH = 114  # Total surah within quran : https://en.wikipedia.org/wiki/List_of_surahs_in_the_Quran
-    BASE_API = 'https://raw.githubusercontent.com/semarketir/quranjson/master/source'
+    BASE_API = 'https://raw.githubusercontent.com/Keda87/quranjson/master/source'
     SUPPORTED_LANGUAGES = ['id', 'en']
 
     def get_random_surah(self, lang='id'):
@@ -47,7 +47,8 @@ class ODOA(object):
 
         # Ensure the language supported.
         if lang not in self.SUPPORTED_LANGUAGES:
-            raise ValueError('Currently your selected language not yet supported.')
+            message = 'Currently your selected language not yet supported.'
+            raise ValueError(message)
 
         # Get random surah and construct the url.
         rand_surah = random.randint(1, self.TOTAL_SURAH)
@@ -65,19 +66,17 @@ class ODOA(object):
             ayah_key = 'verse_{index}'.format(index=random_ayah)
             ayah = data['verse'][ayah_key].encode('utf-8')
             surah_index = data.get('index')
+            surah_name = data.get('name')
 
             # Get translation and sound url.
             translation = self.__get_translation(surah=surah_index, ayah=ayah_key, lang=lang)
             sound = self.__get_sound(surah=surah_index, ayah=random_ayah)
-
-            # Wrap response to dictionary.
-            response = {
+            return {
                 'ayat': ayah,
                 'translate': translation,
-                'sound': sound
+                'sound': sound,
+                'description': '{name}:{ayah}'.format(name=surah_name, ayah=random_ayah)
             }
-
-            return response
 
     def __get_translation(self, surah, ayah, lang):
         """
