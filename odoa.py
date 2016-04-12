@@ -24,8 +24,13 @@ SOFTWARE.
 import sys
 import json
 import random
-import urllib2
 import traceback
+try:
+    # For Python 3.0 and later
+    from urllib.request import urlopen
+except ImportError:
+    # Fall back to Python 2's urllib2
+    from urllib2 import urlopen
 
 
 class ODOA(object):
@@ -55,7 +60,7 @@ class ODOA(object):
         surah_url = '{base}/surah/surah_{pages}.json'.format(base=self.BASE_API,
                                                              pages=rand_surah)
         try:
-            response = urllib2.urlopen(surah_url)  # Fetch data from given url.
+            response = urlopen(surah_url)          # Fetch data from given url.
             data = json.loads(response.read())     # Get response and convert to dict.
         except IOError:
             traceback.print_exc(file=sys.stdout)
@@ -97,8 +102,8 @@ class ODOA(object):
             .format(base=self.BASE_API, lang=lang, surah=int(surah))
 
         try:
-            response = urllib2.urlopen(translation_url)  # Fetch data from give url.
-            data = json.loads(response.read())           # Get response and convert to dict.
+            response = urlopen(translation_url)    # Fetch data from give url.
+            data = json.loads(response.read())     # Get response and convert to dict.
             translation = data['verse'][ayah]
         except Exception:
             return None
