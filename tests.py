@@ -16,3 +16,6 @@ class ODOATest(unittest.TestCase):
     def test_not_supported_language(self):
         with self.assertRaises(ValueError):
             self.odoa.get_random_surah('fr')
+
+if __name__ == '__main__':
+    unittest.main()
