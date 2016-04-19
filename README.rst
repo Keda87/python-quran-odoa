@@ -2,8 +2,8 @@ Python Quran ODOA
 =================
 |pypy| |travis| 
 
-.. |pypy| image:: https://img.shields.io/badge/latest_version-v1.4-yellow.svg
-    :target: https://pypi.python.org/pypi/python-quran-odoa/1.4
+.. |pypy| image:: https://badge.fury.io/py/python-quran-odoa.svg
+    :target: https://badge.fury.io/py/python-quran-odoa
 
 .. |travis| image:: https://travis-ci.org/Keda87/python-quran-odoa.svg?branch=master
     :target: https://travis-ci.org/Keda87/python-quran-odoa
