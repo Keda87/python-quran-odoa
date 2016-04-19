@@ -17,7 +17,7 @@ Suitable for your bot or web apps.
 
 Prerequisite:
 -------------
-- Python v2.*
+- Python v2.* or Python v3.*
 
 Installation:
 -------------
