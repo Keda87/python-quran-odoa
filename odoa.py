@@ -60,8 +60,8 @@ class ODOA(object):
         surah_url = '{base}/surah/surah_{pages}.json'.format(base=self.BASE_API,
                                                              pages=rand_surah)
         try:
-            response = urlopen(surah_url)          # Fetch data from given url.
-            data = json.loads(response.read())     # Get response and convert to dict.
+            response = urlopen(surah_url)                        # Fetch data from given url.
+            data = json.loads(response.read().decode('utf-8'))   # Get response and convert to dict.
         except IOError:
             traceback.print_exc(file=sys.stdout)
             return {}
@@ -103,7 +103,7 @@ class ODOA(object):
 
         try:
             response = urlopen(translation_url)    # Fetch data from give url.
-            data = json.loads(response.read())     # Get response and convert to dict.
+            data = json.loads(response.read().decode('utf-8'))     # Get response and convert to dict.
             translation = data['verse'][ayah]
         except Exception:
             return None

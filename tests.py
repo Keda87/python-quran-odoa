@@ -10,7 +10,7 @@ class ODOATest(unittest.TestCase):
     def test_get_surah(self):
         surah = self.odoa.get_random_surah()
         if surah:
-            self.assertEquals(type({}), type(surah))
+            self.assertEqual(type({}), type(surah))
             self.assertTrue(surah)
 
     def test_not_supported_language(self):
