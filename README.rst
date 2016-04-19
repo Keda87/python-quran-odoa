@@ -8,9 +8,9 @@ Python Quran ODOA
 .. |travis| image:: https://travis-ci.org/Keda87/python-quran-odoa.svg?branch=master
     :target: https://travis-ci.org/Keda87/python-quran-odoa
 
-Python library to support ODOA (One Day One Ayat) campaign that will displaying random ayah within quran surah including the translation, currently supports only Bahasa Indonesia and English.
+Python library to display random ayah within quran surah including the translation. Currently supports only Bahasa Indonesia and English.
 
-This library using datasource from `https://github.com/semarketir/quranjson <https://github.com/semarketir/quranjson>`_
+This library is part of supporting ODOA (One Day One Ayat) campaign and using datasource from `https://github.com/semarketir/quranjson <https://github.com/semarketir/quranjson>`_
  
 
 Suitable for your bot or web apps.
