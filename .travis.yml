@@ -6,5 +6,9 @@ python:
   - "3.4"
   - "3.5"
 
-# command to run tests
+# Command to run tests
 script: python tests.py
+
+# Run coverage.io
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
