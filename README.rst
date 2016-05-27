@@ -1,12 +1,16 @@
 Python Quran ODOA 
 =================
-|pypy| |travis| 
+|pypy| |travis| |Codecov|
 
 .. |pypy| image:: https://badge.fury.io/py/python-quran-odoa.svg
     :target: https://badge.fury.io/py/python-quran-odoa
 
 .. |travis| image:: https://travis-ci.org/Keda87/python-quran-odoa.svg?branch=master
     :target: https://travis-ci.org/Keda87/python-quran-odoa
+
+.. |codecov| image:: https://codecov.io/gh/Keda87/python-quran-odoa/branch/master/graph/badge.svg?branch=master
+    :target: https://codecov.io/gh/Keda87/python-quran-odoa
+
 
 Python library to display random ayah within quran surah including the translation. Currently supports only Bahasa Indonesia and English.
 
