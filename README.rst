@@ -49,7 +49,7 @@ Installation:
     # pass `lang='en'` if you want english translation.
     surah = odoa.get_random_surah()  # odoa.get_random_surah(lang='en')
     
-    surah.get('ayat')
-    surah.get('translate')
-    surah.get('sound')
-    surah.get('description')
+    surah.ayah
+    surah.desc
+    surah.translate
+    surah.sound

@@ -1,5 +1,5 @@
 import unittest
-from odoa import ODOA
+from odoa import ODOA, ODOAException
 
 
 class ODOATest(unittest.TestCase):
@@ -9,12 +9,12 @@ class ODOATest(unittest.TestCase):
 
     def test_get_surah(self):
         surah = self.odoa.get_random_surah()
-        if surah:
-            self.assertEqual(type({}), type(surah))
-            self.assertTrue(surah)
+        self.assertIsNotNone(surah)
+        surah = self.odoa.get_random_surah(lang='en')
+        self.assertIsNotNone(surah)
 
     def test_not_supported_language(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ODOAException):
             self.odoa.get_random_surah('fr')
 
 if __name__ == '__main__':

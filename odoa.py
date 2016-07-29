@@ -33,8 +33,20 @@ except ImportError:
     from urllib2 import urlopen
 
 
-class ODOA(object):
+class ODOAException(Exception):
+    pass
 
+
+class Metadata(object):
+
+    def __init__(self, ayah, desc, translate, sound):
+        self.ayah = ayah
+        self.desc = desc
+        self.translate = translate
+        self.sound = sound
+
+
+class ODOA(object):
     TOTAL_SURAH = 114  # Total surah within quran : https://en.wikipedia.org/wiki/List_of_surahs_in_the_Quran
     BASE_API = 'https://raw.githubusercontent.com/Keda87/quranjson/master/source'
     SUPPORTED_LANGUAGES = ['id', 'en']
@@ -49,12 +61,10 @@ class ODOA(object):
         Return:
             :dict       --  Paired ayat, sound, description and the translation.
         """
-
         # Ensure the language supported.
         if lang not in self.SUPPORTED_LANGUAGES:
             message = 'Currently your selected language not yet supported.'
-            raise ValueError(message)
-
+            raise ODOAException(message)
         # Get random surah and construct the url.
         rand_surah = random.randint(1, self.TOTAL_SURAH)
         surah_url = '{base}/surah/surah_{pages}.json'.format(base=self.BASE_API,
@@ -64,7 +74,7 @@ class ODOA(object):
             data = json.loads(response.read().decode('utf-8'))   # Get response and convert to dict.
         except IOError:
             traceback.print_exc(file=sys.stdout)
-            return {}
+            raise ODOAException
         else:
             # Get random ayat.
             random_ayah = random.randint(1, int(data.get('count')))
@@ -72,16 +82,14 @@ class ODOA(object):
             ayah = data['verse'][ayah_key].encode('utf-8')
             surah_index = data.get('index')
             surah_name = data.get('name')
-
             # Get translation and sound url.
-            translation = self.__get_translation(surah=surah_index, ayah=ayah_key, lang=lang)
+            translation = self.__get_translation(surah=surah_index,
+                                                 ayah=ayah_key,
+                                                 lang=lang)
             sound = self.__get_sound(surah=surah_index, ayah=random_ayah)
-            return {
-                'ayat': ayah,
-                'translate': translation,
-                'sound': sound,
-                'description': '{name}:{ayah}'.format(name=surah_name, ayah=random_ayah)
-            }
+            desc = '{name}:{ayah}'.format(name=surah_name, ayah=random_ayah)
+            meta = Metadata(ayah, desc, translation, sound)
+            return meta
 
     def __get_translation(self, surah, ayah, lang):
         """
@@ -96,16 +104,15 @@ class ODOA(object):
         Return:
             :string     --  Translation from given surah and ayat.
         """
-
         # Construct url to fetch translation data.
-        translation_url = '{base}/translations/{lang}/{lang}_translation_{surah}.json' \
-            .format(base=self.BASE_API, lang=lang, surah=int(surah))
-
+        url = '{base}/translations/{lang}/{lang}_translation_{surah}.json'.format(
+            base=self.BASE_API, lang=lang, surah=int(surah)
+        )
         try:
-            response = urlopen(translation_url)    # Fetch data from give url.
-            data = json.loads(response.read().decode('utf-8'))     # Get response and convert to dict.
+            response = urlopen(url)                             # Fetch data from give url.
+            data = json.loads(response.read().decode('utf-8'))  # Get response and convert to dict.
             translation = data['verse'][ayah]
-        except Exception:
+        except ODOAException:
             return None
         else:
             return translation
@@ -121,12 +128,10 @@ class ODOA(object):
         Return:
             :string     --  URL for mp3 sound.
         """
-
         # Formatting ayah with 0 leading.
         # http://stackoverflow.com/questions/17118071/python-add-leading-zeroes-using-str-format
         format_ayah = '{0:0>3}'.format(ayah)
-
-        sound_url = '{base}/sounds/{surah}/{ayah}.mp3'.format(base=self.BASE_API,
-                                                              surah=surah,
-                                                              ayah=format_ayah)
+        sound_url = '{base}/sounds/{surah}/{ayah}.mp3'.format(
+            base=self.BASE_API, surah=surah, ayah=format_ayah
+        )
         return sound_url
