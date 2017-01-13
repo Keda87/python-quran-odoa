@@ -5,10 +5,16 @@ python:
   - "3.3"
   - "3.4"
   - "3.5"
+  
+install:
+  - pip install coverage
+  - pip install codecov
 
 # Command to run tests
-script: python tests.py
+script: 
+  - coverage run tests.py
 
 # Run coverage.io
 after_success:
   - bash <(curl -s https://codecov.io/bash)
+  - codecov
