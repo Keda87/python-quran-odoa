@@ -5,7 +5,8 @@ python:
   - "3.8"
 
 install:
-  - pip install 'coverage<4'
+  - pip install -r requirements.txt
+  - pip install coverage
   - pip install codecov
 
 # Command to run tests
