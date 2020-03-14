@@ -1,18 +1,19 @@
 # Always prefer setuptools over distutils
 from setuptools import setup, find_packages
 # To use a consistent encoding
+import os
 from codecs import open
-from os import path
 
-here = path.abspath(path.dirname(__file__))
+here = os.path.abspath(os.path.dirname(__file__))
 
-# Get the long description from the relevant file
-with open(path.join(here, 'README.md'), encoding='utf-8') as f:
-    long_description = f.read()
+with open(os.path.join(here, 'requirements.txt')) as f:
+    dependencies = [dep.strip() for dep in f.readlines()]
 
 setup(
     name='python-quran-odoa',
     py_modules=['odoa'],
+
+    install_requires=dependencies,
 
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
@@ -20,7 +21,7 @@ setup(
     version='2.0.0',
 
     description='Library to get random ayah within quran including the translation.',
-    long_description=long_description,
+    long_description='Library to get random ayah within quran including the translation.',
 
     # The project's main homepage.
     url='https://github.com/Keda87/python-quran-odoa',
@@ -58,5 +59,4 @@ setup(
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
     packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
-
 )
