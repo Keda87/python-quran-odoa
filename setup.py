@@ -7,7 +7,7 @@ from os import path
 here = path.abspath(path.dirname(__file__))
 
 # Get the long description from the relevant file
-with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
+with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
@@ -17,7 +17,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='1.6',
+    version='2.0.0',
 
     description='Library to get random ayah within quran including the translation.',
     long_description=long_description,
@@ -26,7 +26,7 @@ setup(
     url='https://github.com/Keda87/python-quran-odoa',
 
     # Author details
-    author='Adiyat Mubarak',
+    author='Keda87',
     author_email='adiyatmubarak@gmail.com',
 
     # Choose your license
@@ -35,8 +35,6 @@ setup(
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
         # How mature is this project? Common values are
-        #   3 - Alpha
-        #   4 - Beta
         #   5 - Production/Stable
         'Development Status :: 5 - Production/Stable',
 
@@ -51,7 +49,6 @@ setup(
 
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
-        'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 3',
     ],
 
