@@ -21,117 +21,78 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-import sys
-import json
 import random
-import traceback
-try:
-    # For Python 3.0 and later
-    from urllib.request import urlopen
-except ImportError:
-    # Fall back to Python 2's urllib2
-    from urllib2 import urlopen
+
+import httpx
+from httpx import Response
 
 
 class ODOAException(Exception):
     pass
 
 
-class Metadata(object):
+class Quran(object):
+    __slots__ = ['ayah', 'desc', 'translate', 'sound']
 
-    def __init__(self, ayah, desc, translate, sound):
+    def __init__(self, ayah: str, desc: str, translate: str, sound: str):
         self.ayah = ayah
         self.desc = desc
         self.translate = translate
         self.sound = sound
 
+    def __repr__(self):
+        return f'<{self.__class__.__name__}: {self.desc}>'
+
 
 class ODOA(object):
-    TOTAL_SURAH = 114  # Total surah within quran : https://en.wikipedia.org/wiki/List_of_surahs_in_the_Quran
-    BASE_API = 'https://raw.githubusercontent.com/Keda87/quranjson/master/source'
-    SUPPORTED_LANGUAGES = ['id', 'en']
+    __slots__ = ['__TOTAL_SURAH', '__BASE_API', '__SUPPORTED_LANGUAGES']
 
-    def get_random_surah(self, lang='id'):
-        """
-        Perform http request to get random surah.
+    def __init__(self) -> None:
+        self.__TOTAL_SURAH = 114  # https://en.wikipedia.org/wiki/List_of_surahs_in_the_Quran
+        self.__BASE_API = 'https://raw.githubusercontent.com/Keda87/quranjson/master/source'
+        self.__SUPPORTED_LANGUAGES = ['id', 'en']
 
-        Parameter:
-            :lang       --  String contains language code.
-
-        Return:
-            :dict       --  Paired ayat, sound, description and the translation.
-        """
-        # Ensure the language supported.
-        if lang not in self.SUPPORTED_LANGUAGES:
-            message = 'Currently your selected language not yet supported.'
+    async def get_random_surah(self, lang: str = 'id') -> Quran:
+        if lang not in self.__SUPPORTED_LANGUAGES:
+            message = 'Currently your selected language not supported yet.'
             raise ODOAException(message)
-        # Get random surah and construct the url.
-        rand_surah = random.randint(1, self.TOTAL_SURAH)
-        surah_url = '{base}/surah/surah_{pages}.json'.format(base=self.BASE_API,
-                                                             pages=rand_surah)
+
+        rand_surah = random.randint(1, self.__TOTAL_SURAH)
+        surah_url = f'{self.__BASE_API}/surah/surah_{rand_surah}.json'
         try:
-            response = urlopen(surah_url)                        # Fetch data from given url.
-            data = json.loads(response.read().decode('utf-8'))   # Get response and convert to dict.
+            response = await self.__fetch(surah_url)
+            data = response.json()
         except IOError:
-            traceback.print_exc(file=sys.stdout)
             raise ODOAException
         else:
-            # Get random ayat.
             random_ayah = random.randint(1, int(data.get('count')))
-            ayah_key = 'verse_{index}'.format(index=random_ayah)
-            ayah = data['verse'][ayah_key].encode('utf-8')
+            ayah_key = f'verse_{random_ayah}'
+            ayah = data['verse'][ayah_key]
             surah_index = data.get('index')
             surah_name = data.get('name')
-            # Get translation and sound url.
-            translation = self.__get_translation(surah=surah_index,
-                                                 ayah=ayah_key,
-                                                 lang=lang)
-            sound = self.__get_sound(surah=surah_index, ayah=random_ayah)
-            desc = '{name}:{ayah}'.format(name=surah_name, ayah=random_ayah)
-            meta = Metadata(ayah, desc, translation, sound)
-            return meta
 
-    def __get_translation(self, surah, ayah, lang):
-        """
-        Perform http request to get translation from given surah, ayah and
-        language.
+            translation = await self.__get_translation(surah_index, ayah_key, lang)
+            sound = self.__get_sound(surah_index, random_ayah)
+            desc = f'{surah_name}:{random_ayah}'
+            return Quran(ayah, desc, translation, sound)
 
-        Parameter:
-            :surah      --  Surah index from API pages.
-            :ayat       --  Ayat key.
-            :lang       --  Language code.
-
-        Return:
-            :string     --  Translation from given surah and ayat.
-        """
-        # Construct url to fetch translation data.
-        url = '{base}/translations/{lang}/{lang}_translation_{surah}.json'.format(
-            base=self.BASE_API, lang=lang, surah=int(surah)
-        )
+    async def __get_translation(self, surah: int, ayah, lang: str) -> str:
+        url = f'{self.__BASE_API}/translations/{lang}/{lang}_translation_{int(surah)}.json'
         try:
-            response = urlopen(url)                             # Fetch data from give url.
-            data = json.loads(response.read().decode('utf-8'))  # Get response and convert to dict.
-            translation = data['verse'][ayah]
-        except ODOAException:
-            return None
-        else:
-            return translation
+            response = await self.__fetch(url)
+            data = response.json()
+            return data['verse'][ayah]
+        except ODOAException as e:
+            raise e
 
-    def __get_sound(self, surah, ayah):
-        """
-        Perform http request to get sound from given surah and ayah.
+    def __get_sound(self, surah: int, ayah: int) -> str:
+        format_ayah = str(ayah).zfill(3)
+        return f'{self.__BASE_API}/sounds/{surah}/{format_ayah}.mp3'
 
-        Parameter:
-            :surah      --  Surah index from API pages.
-            :ayat       --  Ayat key.
+    @staticmethod
+    async def __fetch(url: str) -> Response:
+        async with httpx.AsyncClient() as client:
+            return await client.get(url)
 
-        Return:
-            :string     --  URL for mp3 sound.
-        """
-        # Formatting ayah with 0 leading.
-        # http://stackoverflow.com/questions/17118071/python-add-leading-zeroes-using-str-format
-        format_ayah = '{0:0>3}'.format(ayah)
-        sound_url = '{base}/sounds/{surah}/{ayah}.mp3'.format(
-            base=self.BASE_API, surah=surah, ayah=format_ayah
-        )
-        return sound_url
+    def __repr__(self):
+        return f'<{self.__class__.__name__}>'
